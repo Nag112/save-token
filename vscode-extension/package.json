@@ -1,0 +1,57 @@
+{
+  "name": "save-token",
+  "displayName": "save-token",
+  "description": "Terminal output compression for AI agents: run commands through the save-token binary to return compressed, de-noised output.",
+  "version": "0.1.0",
+  "publisher": "Nag112",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "save-token.install",
+        "title": "save-token: Install/Update Binary"
+      },
+      {
+        "command": "save-token.installAgentInstructions",
+        "title": "save-token: Install Agent Instructions (this workspace)"
+      },
+      {
+        "command": "save-token.checkVersion",
+        "title": "save-token: Check Installed Version"
+      }
+    ],
+    "configuration": {
+      "title": "save-token",
+      "properties": {
+        "save-token.autoInstall": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically install the bundled save-token binary to ~/.local/bin on startup if missing or outdated."
+        },
+        "save-token.installDir": {
+          "type": "string",
+          "default": "~/.local/bin",
+          "description": "Directory to install the save-token binary into."
+        },
+        "save-token.agentInstructions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically write the save-token agent instruction file into workspace .github/instructions/ when a workspace is open."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "vsce package"
+  }
+}

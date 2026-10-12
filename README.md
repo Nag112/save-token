@@ -35,7 +35,7 @@ compressed output.
 ### One-line install (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nagc/save-token/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Nag112/save-token/main/install.sh | bash
 ```
 
 Downloads the latest release for your OS/arch into `~/.local/bin`
