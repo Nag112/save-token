@@ -26,11 +26,14 @@ func tempGitRepo(t *testing.T) string {
 		}
 	}
 	run("init", "-q")
-	if err := os.WriteFile(filepath.Join(dir, "a.txt"), []byte("one\n"), 0o644); err != nil {
-		t.Fatal(err)
+	// Create more commits than MaxLogEntries (default 10) so log compression kicks in.
+	for i := 1; i <= 12; i++ {
+		if err := os.WriteFile(filepath.Join(dir, "a.txt"), []byte(fmt.Sprintf("commit %d\n", i)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		run("add", "a.txt")
+		run("commit", "-q", "-m", fmt.Sprintf("commit %d", i))
 	}
-	run("add", "a.txt")
-	run("commit", "-q", "-m", "initial")
 	if err := os.WriteFile(filepath.Join(dir, "a.txt"), []byte("two\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
