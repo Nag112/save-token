@@ -14,7 +14,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
-VERSION="$(sed -n 's/.*version "\([0-9][^"]*\)".*/\1/p' cmd/save-token/main.go | head -1)"
+VERSION="$(sed -n 's/.*version *= *"\([0-9][^"]*\)".*/\1/p' cmd/save-token/main.go | head -1)"
 VERSION="${VERSION:-0.0.0-dev}"
 DIST="dist"
 EXT_BIN="vscode-extension/binaries"

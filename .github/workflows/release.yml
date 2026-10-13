@@ -31,7 +31,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           if [ "$TAG" = "main" ] || [ -z "${TAG#refs/}" ]; then
-            TAG="$(sed -n 's/.*version "\([0-9][^"]*\)".*/\1/p' cmd/save-token/main.go | head -1)"
+            TAG="$(sed -n 's/.*version *= *"\([0-9][^"]*\)".*/\1/p' cmd/save-token/main.go | head -1)"
             TAG="v$TAG"
           fi
           if gh release view "$TAG" >/dev/null 2>&1; then

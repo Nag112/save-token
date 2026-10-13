@@ -9,7 +9,7 @@
 $ErrorActionPreference = "Stop"
 
 $Repo = "Nag112/save-token"
-$Version = if ($env:SAVE_TOKEN_VERSION) { $env:SAVE_TOKEN_VERSION } else { "0.1.0" }
+$Version = if ($env:SAVE_TOKEN_VERSION) { $env:SAVE_TOKEN_VERSION } else { "0.2.0" }
 $InstallDir = if ($env:SAVE_TOKEN_INSTALL_DIR) { $env:SAVE_TOKEN_INSTALL_DIR } else { Join-Path $HOME ".local\bin" }
 
 function Info($msg) { Write-Host "[save-token] $msg" }

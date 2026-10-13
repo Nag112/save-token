@@ -1,6 +1,6 @@
-a5bc3f4174985add71d5ecdfbd22c14c209dad97d3e12ac6872e0fb87c125739  ./save-token-0.0.0-dev-darwin-amd64.tar.gz
-1714d80079d8ba1c63d44e7615105090f91a4b227d4f2c1f409985f457da6021  ./save-token-0.0.0-dev-darwin-arm64.tar.gz
-5727d701a84830ddf61327e18576589c750751b28c53a3397cc2bea084a693ee  ./save-token-0.0.0-dev-linux-amd64.tar.gz
-eeb5e13955a2724344cfe7d7d8e13218a2758ec1b353e2b440d31d31f8a761bf  ./save-token-0.0.0-dev-linux-arm64.tar.gz
-ca581c60b83bb426e8a701ea659956d69a84b0b95710fe4d2c1786c76526469a  ./save-token-0.0.0-dev-windows-amd64.zip
-7e286c45b6f87c7dd67e18ef7ea9d445f3fd45519652a73dee140f294f7dc7c4  ./save-token-0.0.0-dev-windows-arm64.zip
+178ab0fcf17aea7b61147e8ad845d6b26f9d1784b8502c4f7bafbf055c4cbd96  ./save-token-0.2.0-darwin-amd64.tar.gz
+8e22e9e6ea5fb615228ed1708f85507a9a50e627d7d421b2841114d0f9f7300a  ./save-token-0.2.0-darwin-arm64.tar.gz
+1c5d5665d5f08fdd154faf691d573489dcab250219a41fd59ac6e68690f3677f  ./save-token-0.2.0-linux-amd64.tar.gz
+f80a7bb5d7ffea3ca3febcddb472b4258969b860743f526aefd0c20bdb9b15ed  ./save-token-0.2.0-linux-arm64.tar.gz
+854e4a6a77bdad7528f05da77a930c0588753afda964765f939df8aa31f57c9e  ./save-token-0.2.0-windows-amd64.zip
+3db6ee1bf5c2309daf1dacc7584581e90469a3d1fa22aa5a7d870498b7ca1cb8  ./save-token-0.2.0-windows-arm64.zip

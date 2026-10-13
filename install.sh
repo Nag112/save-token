@@ -13,7 +13,7 @@
 set -euo pipefail
 
 REPO="Nag112/save-token"
-VERSION="${SAVE_TOKEN_VERSION:-0.1.0}"
+VERSION="${SAVE_TOKEN_VERSION:-0.2.0}"
 INSTALL_DIR="${SAVE_TOKEN_INSTALL_DIR:-$HOME/.local/bin}"
 TARGET="$INSTALL_DIR/save-token"
 FROM_RELEASE=0

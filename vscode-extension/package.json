@@ -2,7 +2,7 @@
   "name": "save-token",
   "displayName": "save-token",
   "description": "Terminal output compression for AI agents: run commands through the save-token binary to return compressed, de-noised output.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "Nag112",
   "license": "MIT",
   "engines": {
