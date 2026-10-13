@@ -36,6 +36,17 @@ done
 info() { printf '[save-token] %s\n' "$*"; }
 die()  { printf '[save-token] error: %s\n' "$*" >&2; exit 1; }
 
+# Download temp dir. Kept global on purpose: macOS ships bash 3.2, where a
+# `local` referenced by the EXIT trap is out of scope at exit and trips
+# `set -u` ("tmp: unbound variable") after an otherwise successful install.
+RELEASE_TMP=""
+cleanup_release_tmp() {
+  if [ -n "$RELEASE_TMP" ]; then
+    rm -rf "$RELEASE_TMP"
+  fi
+}
+trap cleanup_release_tmp EXIT
+
 # ---------------------------------------------------------------------------
 # Platform detection (release asset naming: save-token-<os>-<arch>.tar.gz)
 # ---------------------------------------------------------------------------
@@ -62,9 +73,8 @@ install_from_release() {
   detect_platform
   local asset="save-token-${VERSION}-${PLATFORM}-${ARCH}.tar.gz"
   local url="https://github.com/${REPO}/releases/download/v${VERSION}/${asset}"
-  local tmp
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
+  RELEASE_TMP="$(mktemp -d)"
+  local tmp="$RELEASE_TMP"
 
   info "Downloading ${url}"
   if command -v curl >/dev/null 2>&1; then
