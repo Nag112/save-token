@@ -18,7 +18,7 @@ import (
 	"github.com/Nag112/save-token/internal/processors"
 )
 
-var version = "0.2.0"
+var version = "0.2.1"
 
 const usage = `save-token <command...>
 
