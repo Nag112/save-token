@@ -108,7 +108,7 @@ command:
 	}
 
 	segments := gate.SplitChainWithOps(command)
-	isChain := len(segments) > 1
+	isChain := len(segments) > 1 && exec.ChainSupported()
 
 	var (
 		fullOutput string

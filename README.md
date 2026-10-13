@@ -34,13 +34,21 @@ compressed output.
 
 ### One-line install (recommended)
 
+macOS / Linux:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Nag112/save-token/main/install.sh | bash
 ```
 
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/Nag112/save-token/main/install.ps1 | iex
+```
+
 Downloads the latest release for your OS/arch into `~/.local/bin`
-(override with `SAVE_TOKEN_INSTALL_DIR`). Make sure `~/.local/bin` is on
-your `PATH`.
+(`%USERPROFILE%\.local\bin` on Windows; override with
+`SAVE_TOKEN_INSTALL_DIR`). Make sure that directory is on your `PATH`.
 
 ### From a local checkout
 
@@ -115,7 +123,13 @@ go build ./...          # build
 go test ./...           # unit + golden parity tests
 ./build.sh --local      # build current-platform binary into ./bin
 ./build.sh              # cross-compile release assets + extension binaries
+                        # (darwin/linux/windows x amd64/arm64)
 ```
+
+Releases are published by the `Release` workflow: push a `v*` tag
+(e.g. `git tag v0.1.0 && git push origin v0.1.0`) and the assets in
+`dist/` are attached to a GitHub Release, which the install scripts
+download from.
 
 Requires Go 1.27+.
 

@@ -7,11 +7,12 @@
 #   ./build.sh --local      # current platform only, into ./bin
 #
 # Outputs:
-#   dist/save-token-<version>-<os>-<arch>.tar.gz   (release assets)
-#   vscode-extension/binaries/save-token-<os>-<arch>
+#   dist/save-token-<version>-<os>-<arch>.tar.gz   (release assets, .zip on Windows)
+#   vscode-extension/binaries/save-token-<os>-<arch>[.exe]
 
 set -euo pipefail
-cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
 
 VERSION="$(sed -n 's/.*version "\([0-9][^"]*\)".*/\1/p' cmd/save-token/main.go | head -1)"
 VERSION="${VERSION:-0.0.0-dev}"
@@ -40,20 +41,29 @@ targets=(
   "darwin amd64"
   "linux arm64"
   "linux amd64"
+  "windows amd64"
+  "windows arm64"
 )
 
 for t in "${targets[@]}"; do
   os="${t%% *}"; arch="${t##* }"
+  bin="save-token"
+  [ "$os" = "windows" ] && bin="save-token.exe"
   stage="$(mktemp -d)"
-  build_one "$os" "$arch" "$stage/save-token"
+  build_one "$os" "$arch" "$stage/$bin"
   # Extension bundles keep a simple platform-suffixed name.
-  cp "$stage/save-token" "$EXT_BIN/save-token-$os-$arch"
-  tar -czf "$DIST/save-token-$VERSION-$os-$arch.tar.gz" -C "$stage" save-token
+  cp "$stage/$bin" "$EXT_BIN/save-token-$os-$arch$( [ "$os" = "windows" ] && echo .exe )"
+  if [ "$os" = "windows" ]; then
+    # Windows users get a zip; Explorer opens it natively.
+    (cd "$stage" && zip -qr "$ROOT/$DIST/save-token-$VERSION-$os-$arch.zip" "$bin")
+  else
+    tar -czf "$DIST/save-token-$VERSION-$os-$arch.tar.gz" -C "$stage" "$bin"
+  fi
   rm -rf "$stage"
 done
 
 # Checksums for the GitHub Release.
-(cd "$DIST" && shasum -a 256 ./*.tar.gz > checksums.txt)
+(cd "$DIST" && shasum -a 256 ./*.tar.gz ./*.zip > checksums.txt)
 
 echo
 echo "Release assets in $DIST/:"

@@ -44,7 +44,7 @@ detect_platform() {
   case "$(uname -s)" in
     Darwin) os="darwin" ;;
     Linux)  os="linux" ;;
-    *)      die "unsupported OS: $(uname -s) (on Windows use WSL or the VS Code extension)" ;;
+    *)      die "unsupported OS: $(uname -s) (on Windows use install.ps1 in PowerShell, WSL, or the VS Code extension)" ;;
   esac
   case "$(uname -m)" in
     arm64|aarch64) arch="arm64" ;;

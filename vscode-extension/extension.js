@@ -42,9 +42,12 @@ function arch() {
 }
 
 function platformAsset() {
-  const p = process.platform === "darwin" ? "darwin" : process.platform === "linux" ? "linux" : null;
+  const map = { darwin: "darwin", linux: "linux", win32: "windows" };
+  const p = map[process.platform] || null;
   const a = arch();
-  return p && a ? `save-token-${p}-${a}` : null;
+  if (!p || !a) return null;
+  const ext = p === "windows" ? ".exe" : "";
+  return `save-token-${p}-${a}${ext}`;
 }
 
 function installDir() {
@@ -78,7 +81,8 @@ async function installBinary(showOutput) {
     return false;
   }
   const dir = installDir();
-  const target = path.join(dir, "save-token");
+  const exe = process.platform === "win32" ? "save-token.exe" : "save-token";
+  const target = path.join(dir, exe);
   try {
     fs.mkdirSync(dir, { recursive: true });
     const wantVersion = readBundledVersion();
@@ -142,7 +146,8 @@ function activate(context) {
     vscode.commands.registerCommand("save-token.install", () => installBinary(true)),
     vscode.commands.registerCommand("save-token.installAgentInstructions", () => installAgentInstructions(true)),
     vscode.commands.registerCommand("save-token.checkVersion", async () => {
-      const ver = await installedVersion(path.join(installDir(), "save-token"));
+      const exe = process.platform === "win32" ? "save-token.exe" : "save-token";
+      const ver = await installedVersion(path.join(installDir(), exe));
       if (ver) vscode.window.showInformationMessage(ver);
       else vscode.window.showWarningMessage("save-token is not installed. Run: save-token: Install/Update Binary");
     })

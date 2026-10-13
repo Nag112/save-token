@@ -5,8 +5,9 @@ agents to use it.
 
 ## What it does
 
-- **Installs the binary** — bundles platform binaries for macOS/Linux
-  (arm64/amd64) and installs to `~/.local/bin/save-token` on startup
+- **Installs the binary** — bundles platform binaries for macOS/Linux/Windows
+  (arm64/amd64) and installs to `~/.local/bin/save-token`
+  (`%USERPROFILE%\.local\bin\save-token.exe` on Windows) on startup
   (or via the `save-token: Install/Update Binary` command).
 - **Writes agent instructions** — creates
   `.github/instructions/save-token.instructions.md` in your workspace telling

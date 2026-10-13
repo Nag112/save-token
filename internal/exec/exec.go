@@ -10,12 +10,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strconv"
 	"strings"
-	"sync"
-	"syscall"
-	"time"
 
 	"github.com/Nag112/save-token/internal/gate"
 )
@@ -46,8 +42,12 @@ func InjectMarkers(segments []gate.Segment) (rewritten, prefix string) {
 	var sb strings.Builder
 	for i, seg := range segments {
 		if i > 0 {
-			sb.WriteString(" " + segments[i-1].Op + " ")
-			sb.WriteString("{\necho '" + prefix + strconv.Itoa(i) + "';\n")
+			sb.WriteString(" ")
+			sb.WriteString(segments[i-1].Op)
+			sb.WriteString(" {\necho '")
+			sb.WriteString(prefix)
+			sb.WriteString(strconv.Itoa(i))
+			sb.WriteString("';\n")
 		} else {
 			sb.WriteString("{\n")
 		}
@@ -104,99 +104,10 @@ func SplitByMarkers(output, prefix string, n int) []Chunk {
 	return chunks
 }
 
-// ValidSyntax reports whether sh -n accepts the rewritten command
-// (ports _rewrite_is_syntactically_valid). Inconclusive checks (e.g. the
-// check itself timed out) count as valid — fail open.
-func ValidSyntax(rewritten string) bool {
-	cmd := exec.Command("sh", "-n", "-c", rewritten)
-	cmd.Stdin = nil
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	done := make(chan error, 1)
-	if err := cmd.Start(); err != nil {
-		return true
-	}
-	go func() { done <- cmd.Wait() }()
-	select {
-	case err := <-done:
-		return err == nil
-	case <-time.After(5 * time.Second):
-		_ = cmd.Process.Kill()
-		return true
-	}
-}
-
-func exitCodeOf(err error, timedOut bool) int {
-	if timedOut {
-		return 124
-	}
-	if err == nil {
-		return 0
-	}
-	var ee *exec.ExitError
-	if e, ok := err.(*exec.ExitError); ok {
-		ee = e
-	} else {
-		return 127 // could not execute
-	}
-	if ws, ok := ee.Sys().(syscall.WaitStatus); ok {
-		if ws.Signaled() {
-			return 128 + int(ws.Signal())
-		}
-		return ws.ExitStatus()
-	}
-	return ee.ExitCode()
-}
-
-// start wires a command in its own process group with signal forwarding
-// and a timeout watchdog that kills the whole group.
-func start(cmd *exec.Cmd, timeoutSec int) (timedOut *bool, stop func()) {
-	t := false
-	timedOut = &t
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	done := make(chan struct{})
-	var once sync.Once
-	go func() {
-		for {
-			select {
-			case sig := <-sigs:
-				if cmd.Process != nil {
-					if s, ok := sig.(syscall.Signal); ok {
-						_ = syscall.Kill(-cmd.Process.Pid, s)
-					}
-				}
-			case <-done:
-				return
-			}
-		}
-	}()
-	var timer *time.Timer
-	if timeoutSec > 0 {
-		timer = time.AfterFunc(time.Duration(timeoutSec)*time.Second, func() {
-			if cmd.Process != nil {
-				t = true
-				_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-			}
-		})
-	}
-	stop = func() {
-		once.Do(func() {
-			if timer != nil {
-				timer.Stop()
-			}
-			signal.Stop(sigs)
-			close(done)
-		})
-	}
-	return timedOut, stop
-}
-
-// Capture runs the command via sh -c with piped output. With
+// Capture runs the command via the platform shell with piped output. With
 // mergeStderr, stderr interleaves into stdout as in the real terminal.
 func Capture(command string, timeoutSec int, mergeStderr bool) Result {
-	cmd := exec.Command("/bin/sh", "-c", command)
+	cmd := shellCommand(command)
 	cmd.Stdin = os.Stdin // Python's subprocess inherits stdin; Go defaults to /dev/null.
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf
@@ -229,7 +140,7 @@ func Capture(command string, timeoutSec int, mergeStderr bool) Result {
 // must not be captured (refusals, raw mode). Signals are forwarded to the
 // child's process group since the terminal only delivers them to us.
 func Passthrough(command string, timeoutSec int) int {
-	cmd := exec.Command("/bin/sh", "-c", command)
+	cmd := shellCommand(command)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
