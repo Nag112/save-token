@@ -3,14 +3,16 @@
 # Usage:
 #   irm https://raw.githubusercontent.com/Nag112/save-token/main/install.ps1 | iex
 #
-# Installs save-token.exe to $HOME\.local\bin (override with
+# Installs save-token.exe to $env:USERPROFILE\.local\bin (override with
 # $env:SAVE_TOKEN_INSTALL_DIR). Adds it to your user PATH if needed.
 
 $ErrorActionPreference = "Stop"
 
 $Repo = "Nag112/save-token"
 $Version = if ($env:SAVE_TOKEN_VERSION) { $env:SAVE_TOKEN_VERSION } else { "0.2.1" }
-$InstallDir = if ($env:SAVE_TOKEN_INSTALL_DIR) { $env:SAVE_TOKEN_INSTALL_DIR } else { Join-Path $HOME ".local\bin" }
+# $HOME points at Documents in Windows PowerShell 5.1, so use USERPROFILE explicitly.
+$UserProfile = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
+$InstallDir = if ($env:SAVE_TOKEN_INSTALL_DIR) { $env:SAVE_TOKEN_INSTALL_DIR } else { Join-Path $UserProfile ".local\bin" }
 
 function Info($msg) { Write-Host "[save-token] $msg" }
 function Die($msg) { Write-Host "[save-token] error: $msg" -ForegroundColor Red; exit 1 }
@@ -27,7 +29,9 @@ $Url = "https://github.com/$Repo/releases/download/v$Version/$Asset"
 $Target = Join-Path $InstallDir "save-token.exe"
 
 Info "Downloading $Url"
-$Tmp = New-Item -ItemType Directory -Path ([System.IO.Path]::GetRandomFileName()) -Confirm:$false
+# Never use the current directory: it may be a protected location (e.g. system32).
+$TempRoot = if ($env:TEMP) { $env:TEMP } else { [System.IO.Path]::GetTempPath() }
+$Tmp = New-Item -ItemType Directory -Path (Join-Path $TempRoot ("save-token-" + [System.Guid]::NewGuid().ToString("N"))) -Force
 try {
     $Zip = Join-Path $Tmp.FullName $Asset
     try {
@@ -58,7 +62,11 @@ if ($PathDirs -notcontains $InstallDir) {
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
         Info "Added $InstallDir to your user PATH. Restart your terminal to pick it up."
     } catch {
-        Info "Add it manually: setx PATH \"%PATH%;$InstallDir\""
+        # Avoid recommending 'setx PATH "%PATH%;..."': it truncates at 1024 chars
+        # and copies the machine PATH into the user PATH.
+        Info 'Add it manually: open "Edit account environment variables", or run:'
+        Info ('    [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";' + $InstallDir + '", "User")')
+        Info "Then restart your terminal."
     }
 }
 
